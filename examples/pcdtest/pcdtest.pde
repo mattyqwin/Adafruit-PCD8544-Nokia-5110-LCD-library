@@ -69,7 +69,7 @@ void setup()   {
 
   display.display(); // show splashscreen
   delay(2000);
-  display.capture(my_screenshot); // save screenshot for later
+  display.capture(&my_screenshot[0]); // save screenshot for later
   display.clearDisplay();   // clears the screen and buffer
 
   // draw a single pixel
@@ -155,7 +155,7 @@ void setup()   {
   delay(1000); 
 
   // replace screen with earlier screenshot
-  display.replace_S(my_screenshot);
+  display.replace_S(&my_screenshot[0]);
 
   // scroll around a bit
   testScroll();

@@ -193,10 +193,10 @@ void Adafruit_PCD8544::scrollUp(boolean WRAP) {
 	  if(row < LCDHEIGHT/8 ) { // 2nd-highest row and below
 		// retrieve and place carry bit from last(higher) row
 		if (carry[col>>3] & carrybit) { 	  // carry is set
-			carryflag=1;
+			carryflag = 1;
 			carry[col>>3] &= ~carrybit; // reset this carry bit
 		} else {
-			carryflag=0;
+			carryflag = 0;
 		}
 	  } 
 	  // remember soon-to-be shifted bit
@@ -237,10 +237,10 @@ void Adafruit_PCD8544::scrollDown(boolean WRAP) {
 	  carrybit=1 << (col%8); 
 	  if(row < 6 && ((carry[col>>3] & carrybit))) { 
 		// retrieve  carry bit from last(lower) row
-		carryflag = 0x01;
+		carryflag = 1;
 		carry[col>>3] &= ~carrybit; // and reset it(ready for another)
 	  } else {
-		carryflag = 0x00;
+		carryflag = 0;
 	  }			     	  
 	  // remember soon-to-be shifted carrybit
 	  if ((pcd8544_buffer[ix] & 0x80)) { // carry (MSb) is set
