@@ -30,6 +30,8 @@ Adafruit_PCD8544 display = Adafruit_PCD8544(7, 6, 5, 4, 3);
 #define XPOS 0
 #define YPOS 1
 #define DELTAY 2
+#define WRAP 1
+#define NOWRAP 0
 
 
 #define LOGO16_GLCD_HEIGHT 16
@@ -53,6 +55,8 @@ static unsigned char PROGMEM logo16_glcd_bmp[] =
   B01110000, B01110000,
   B00000000, B00110000 };
 
+static uint8_t my_screenshot[LCDWIDTH * LCDHEIGHT/8]; 
+  
 void setup()   {
   Serial.begin(9600);
 
@@ -65,6 +69,7 @@ void setup()   {
 
   display.display(); // show splashscreen
   delay(2000);
+  display.capture(my_screenshot); // save screenshot for later
   display.clearDisplay();   // clears the screen and buffer
 
   // draw a single pixel
@@ -149,6 +154,12 @@ void setup()   {
   display.invertDisplay(false);
   delay(1000); 
 
+  // replace screen with earlier screenshot
+  display.replace_S(my_screenshot);
+
+  // scroll around a bit
+  testScroll();
+  
   // draw a bitmap icon and 'animate' movement
   testdrawbitmap(logo16_glcd_bmp, LOGO16_GLCD_HEIGHT, LOGO16_GLCD_WIDTH);
 }
@@ -320,4 +331,22 @@ void testdrawline() {
     display.display();
   }
   delay(250);
+}
+
+void testScroll() {
+  uint8_t x;
+  
+  for ( x=0; x < 24; x++) {
+    display.scrollLeft(WRAP);   display.display(); delay(50);
+  }
+  for ( x=0; x < 16; x++) {
+    display.scrollRight(WRAP);  display.display(); delay(50);
+  }  
+  for ( x=0; x < 32; x++) {
+    display.scrollUp(WRAP);     display.display(); delay(50);
+  }
+  for ( x=0; x < 48; x++) {
+    display.scrollDown(NOWRAP); display.display(); delay(50);
+  }
+  
 }

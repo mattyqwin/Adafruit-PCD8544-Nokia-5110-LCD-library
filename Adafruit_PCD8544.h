@@ -66,6 +66,14 @@ class Adafruit_PCD8544 : public Adafruit_GFX {
   void drawPixel(int16_t x, int16_t y, uint16_t color);
   uint8_t getPixel(int8_t x, int8_t y);
 
+  void replace_P(uint8_t *bitmap);
+  void replace_S(uint8_t *bitmap);
+  void capture(uint8_t *bitmap); 
+  void scrollLeft(boolean WRAP);
+  void scrollRight(boolean WRAP);
+  void scrollUp(boolean WRAP);
+  void scrollDown(boolean WRAP);
+
  private:
   int8_t _din, _sclk, _dc, _rst, _cs;
   volatile uint8_t *mosiport, *clkport, *csport, *dcport;
