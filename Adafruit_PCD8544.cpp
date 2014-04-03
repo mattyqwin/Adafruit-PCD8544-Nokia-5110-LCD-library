@@ -151,16 +151,16 @@ void Adafruit_PCD8544::scrollLeft(boolean WRAP) {
   uint8_t row, /*col, */ tmp;
   /*uint16_t ix;*/
   for (row=0; row<6; row++) {
-	tmp = pcd8544_buffer[row * LCDWIDTH]; // remember 1st byte
-	memcpy(pcd8544_buffer +(row * LCDWIDTH),
-		   pcd8544_buffer +(row * LCDWIDTH) + 1,
-		   LCDWIDTH - 1);
-	// for (col=0;col<LCDWIDTH-1;col++) {              // 1 line good but ugly
-	  // ix=row*LCDWIDTH+col;                          // 3 lines readable but slower
-	  // pcd8544_buffer[ix] = pcd8544_buffer[ix + 1]; 
-	// }
+    tmp = pcd8544_buffer[row * LCDWIDTH]; // remember 1st byte
+    memcpy(pcd8544_buffer +(row * LCDWIDTH),
+           pcd8544_buffer +(row * LCDWIDTH) + 1,     // 1 line fast but ugly
+           LCDWIDTH - 1);
+//     for (col=0;col<LCDWIDTH-1;col++) { 
+//       ix=row*LCDWIDTH+col;                        // 3 lines readable but slower
+//       pcd8544_buffer[ix] = pcd8544_buffer[ix + 1]; 
+//     }
     // place wrapped byte if required
-	pcd8544_buffer[row * LCDWIDTH + LCDWIDTH - 1] = WRAP ? tmp : 0x00; 	
+    pcd8544_buffer[row * LCDWIDTH + LCDWIDTH - 1] = WRAP ? tmp : 0x00;
   }
   updateBoundingBox(0, 0, LCDWIDTH-1, LCDHEIGHT-1);
 }
@@ -170,12 +170,12 @@ void Adafruit_PCD8544::scrollRight(boolean WRAP) {
   uint8_t row, col, tmp;
   uint16_t ix;
   for (row=0; row<6; row++) {
-	tmp = pcd8544_buffer[row * LCDWIDTH + LCDWIDTH - 1]; // remember 1st byte
-	for (col=83; col > 0; col--) {
-	  ix=row * LCDWIDTH + col;
-	  pcd8544_buffer[ix] = pcd8544_buffer[ix-1];
-	}
-	pcd8544_buffer[row * LCDWIDTH] = WRAP ? tmp : 0x00;  // place wrapped byte
+    tmp = pcd8544_buffer[row * LCDWIDTH + LCDWIDTH - 1]; // remember 1st byte
+    for (col=83; col > 0; col--) {
+      ix=row * LCDWIDTH + col;
+      pcd8544_buffer[ix] = pcd8544_buffer[ix-1];
+    }
+    pcd8544_buffer[row * LCDWIDTH] = WRAP ? tmp : 0x00;  // place wrapped byte
   }
   updateBoundingBox(0, 0, LCDWIDTH-1, LCDHEIGHT-1);
 }
@@ -187,39 +187,39 @@ void Adafruit_PCD8544::scrollUp(boolean WRAP) {
   memset(&carry[0],0,11); // clear carry bits
   // move from the bottom row(6) backwards to 0
   for (row=6; row>0; row--) {
-	for (col=0; col < LCDWIDTH; col++) {
-	  ix=(uint16_t)(((row-1) * LCDWIDTH) + col);
-	  carrybit = 0x01 << col%8;
-	  if(row < LCDHEIGHT/8 ) { // 2nd-highest row and below
-		// retrieve and place carry bit from last(higher) row
-		if (carry[col>>3] & carrybit) { 	  // carry is set
-			carryflag = 1;
-			carry[col>>3] &= ~carrybit; // reset this carry bit
-		} else {
-			carryflag = 0;
-		}
-	  } 
-	  // remember soon-to-be shifted bit
-	  if (pcd8544_buffer[ix] & 0x01) { // carry LSb is set
-		carry[col>>3] |= carrybit; //  remember LSb(top bit)
-	  }
-	  pcd8544_buffer[ix] >>= 1; 	// shift right(MSb->LSb(up)) 1 bit
-	  if(carryflag) { 	      
-	    pcd8544_buffer[ix] |= 0x80; // place carry in MSb
-	  }
-	} // for col
+    for (col=0; col < LCDWIDTH; col++) {
+      ix=(uint16_t)(((row-1) * LCDWIDTH) + col);
+      carrybit = 0x01 << col%8;
+      if(row < LCDHEIGHT/8 ) { // 2nd-highest row and below
+        // retrieve and place carry bit from last(higher) row
+        if (carry[col>>3] & carrybit) {       // carry is set
+            carryflag = 1;
+            carry[col>>3] &= ~carrybit; // reset this carry bit
+        } else {
+            carryflag = 0;
+        }
+      } 
+      // remember soon-to-be shifted bit
+      if (pcd8544_buffer[ix] & 0x01) { // carry LSb is set
+        carry[col>>3] |= carrybit; //  remember LSb(top bit)
+      }
+      pcd8544_buffer[ix] >>= 1;     // shift right(MSb->LSb(up)) 1 bit
+      if(carryflag) {           
+        pcd8544_buffer[ix] |= 0x80; // place carry in MSb
+      }
+    } // for col
   } // for row 
   // wrap around shifted-up bits
   if (WRAP) {
-	for (col=0; col < LCDWIDTH; col++) {
-	  //ix = col+420;
-	  ix = col + ((LCDWIDTH * LCDHEIGHT/8) - LCDWIDTH);
-	  carrybit = 0x1 << col%8;
-	  if (carry[col>>3] & carrybit) { // carry, set
-	    pcd8544_buffer[ix] |= 0x80;
-	  } else {
-	    pcd8544_buffer[ix] &= 0x7f; // no carry, reset - REDUNDANT??
-	  }
+    for (col=0; col < LCDWIDTH; col++) {
+      //ix = col+420;
+      ix = col + ((LCDWIDTH * LCDHEIGHT/8) - LCDWIDTH);
+      carrybit = 0x1 << col%8;
+      if (carry[col>>3] & carrybit) { // carry, set
+        pcd8544_buffer[ix] |= 0x80;
+      } else {
+        pcd8544_buffer[ix] &= 0x7f; // no carry, reset - REDUNDANT??
+      }
     }
   } //if WRAP
   updateBoundingBox(0, 0, LCDWIDTH-1, LCDHEIGHT-1);
@@ -232,37 +232,37 @@ void Adafruit_PCD8544::scrollDown(boolean WRAP) {
   memset(&carry[0],0,11); // clear carry bits
   // move from the bottom row(6) up to row 0
   for (row=0; row < LCDHEIGHT/8; row++) {
-	for (col=0; col < LCDWIDTH; col++) {
-	  ix=(uint16_t)((row*LCDWIDTH) + col);
-	  carrybit=1 << (col%8); 
-	  if(row < 6 && ((carry[col>>3] & carrybit))) { 
-		// retrieve  carry bit from last(lower) row
-		carryflag = 1;
-		carry[col>>3] &= ~carrybit; // and reset it(ready for another)
-	  } else {
-		carryflag = 0;
-	  }			     	  
-	  // remember soon-to-be shifted carrybit
-	  if ((pcd8544_buffer[ix] & 0x80)) { // carry (MSb) is set
-		carry[col>>3] |= carrybit;       // remember it
-	  }
-	  pcd8544_buffer[ix] <<= 1; // shift left(MSb<-LSb(down)) 1 bit
-	  // place carry
-	  if(carryflag) {
-	    pcd8544_buffer[ix] |= 0x01; // place carry in MSb
-	  }
-	} // for col
+    for (col=0; col < LCDWIDTH; col++) {
+      ix=(uint16_t)((row*LCDWIDTH) + col);
+      carrybit=1 << (col%8); 
+      if(row < 6 && ((carry[col>>3] & carrybit))) { 
+        // retrieve  carry bit from last(lower) row
+        carryflag = 1;
+        carry[col>>3] &= ~carrybit; // and reset it(ready for another)
+      } else {
+        carryflag = 0;
+      }                       
+      // remember soon-to-be shifted carrybit
+      if ((pcd8544_buffer[ix] & 0x80)) { // carry (MSb) is set
+        carry[col>>3] |= carrybit;       // remember it
+      }
+      pcd8544_buffer[ix] <<= 1; // shift left(MSb<-LSb(down)) 1 bit
+      // place carry
+      if(carryflag) {
+        pcd8544_buffer[ix] |= 0x01; // place carry in MSb
+      }
+    } // for col
   } // for row 
   if (WRAP) {
-  	for (col=0;col<LCDWIDTH;col++) {
-	  ix = col;
-	  carrybit = 0x01 << col%8;
-	  if (carry[col>>3] & carrybit) { // carry: set pixel
-		pcd8544_buffer[ix] |= 0x01;
-	  } else {
-		pcd8544_buffer[ix] &= 0xFE; // no carry: clear pixel(REDUNDANT??)
-	  }	  
-	}
+      for (col=0;col<LCDWIDTH;col++) {
+      ix = col;
+      carrybit = 0x01 << col%8;
+      if (carry[col>>3] & carrybit) { // carry: set pixel
+        pcd8544_buffer[ix] |= 0x01;
+      } else {
+        pcd8544_buffer[ix] &= 0xFE; // no carry: clear pixel(REDUNDANT??)
+      }
+    }
   }
   updateBoundingBox(0, 0, LCDWIDTH-1, LCDHEIGHT-1);
 }
