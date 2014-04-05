@@ -336,17 +336,20 @@ void testdrawline() {
 void testScroll() {
   uint8_t x;
   
-  for ( x=0; x < 24; x++) {
-    display.scrollLeft(WRAP);   display.display(); delay(50);
+  for ( x=0; x < 96; x++) {
+    display.scrollLeft(WRAP); display.scrollUp(WRAP);
+    display.display(); delay(30);
   }
-  for ( x=0; x < 16; x++) {
-    display.scrollRight(WRAP);  display.display(); delay(50);
+  for ( x=0; x < 12; x++) {
+    display.scrollRight(WRAP); display.display(); delay(50);
   }  
-  for ( x=0; x < 32; x++) {
-    display.scrollUp(WRAP);     display.display(); delay(50);
+  for ( x=0; x < 24; x++) {
+    display.scrollDown(WRAP);  display.display(); delay(50);
+  }
+  for ( x=0; x < 24; x++) {
+    display.scrollUp(WRAP);    display.display(); delay(25);
   }
   for ( x=0; x < 48; x++) {
-    display.scrollDown(NOWRAP); display.display(); delay(50);
-  }
-  
+    display.scrollUp(NOWRAP);  display.display(); delay(5);
+  } 
 }
