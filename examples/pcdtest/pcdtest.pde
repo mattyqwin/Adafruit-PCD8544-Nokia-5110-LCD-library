@@ -340,7 +340,7 @@ void testScroll() {
     display.scrollLeft(WRAP); display.scrollUp(WRAP);
     display.display(); delay(30);
   }
-  for ( x=0; x < 12; x++) {
+  for ( x=0; x < 24; x++) {
     display.scrollRight(WRAP); display.display(); delay(50);
   }  
   for ( x=0; x < 24; x++) {

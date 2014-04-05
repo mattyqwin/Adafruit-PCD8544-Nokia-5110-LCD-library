@@ -152,12 +152,12 @@ void Adafruit_PCD8544::scrollLeft(boolean WRAP) {
   uint8_t row, /*col, */ tmp;
   /*uint16_t ix;*/
   for (row=0; row < LCDHEIGHT/8; row++) {
-    tmp = pcd8544_buffer[row * LCDWIDTH];        // remember 1st byte
+    tmp = pcd8544_buffer[row * LCDWIDTH];         // remember 1st byte
     memcpy(pcd8544_buffer + (row * LCDWIDTH),
            pcd8544_buffer + (row * LCDWIDTH) + 1, // 1 line fast but ugly
-           LCDWIDTH - 1);
+           LCDWIDTH-1);
 //     for (col=0;col<LCDWIDTH-1;col++) { 
-//       ix=row*LCDWIDTH+col;                    // 3 lines readable but slower
+//       ix=row*LCDWIDTH+col;                     // 3 lines readable but slower
 //       pcd8544_buffer[ix] = pcd8544_buffer[ix + 1]; 
 //     }
     // place wrapped byte if required
@@ -183,10 +183,10 @@ void Adafruit_PCD8544::scrollRight(boolean WRAP) {
 
 // scroll screen 1 pixel up
 void Adafruit_PCD8544::scrollUp(boolean WRAP) {
-  uint8_t row, col, carrybit, carryflag=0, carry[11];
+  uint8_t row, col, carrybit, carryflag=0, carry[((LCDWIDTH-1) / 8) + 1];
   uint16_t ix;
   
-  memset(&carry[0],0,11); // clear carry bits
+  memset(&carry[0],0,((LCDWIDTH-1) / 8) + 1); // clear carry bits
   // move from the bottom row backwards to 0
   for (row= LCDHEIGHT/8 ; row > 0; row--) {
     for (col=0; col < LCDWIDTH; col++) {
@@ -227,10 +227,10 @@ void Adafruit_PCD8544::scrollUp(boolean WRAP) {
 
 // scroll screen 1 pixel down
 void Adafruit_PCD8544::scrollDown(boolean WRAP) {
-  uint8_t row, col, carrybit, carryflag, carry[11];
+  uint8_t row, col, carrybit, carryflag, carry[((LCDWIDTH-1) / 8) + 1];
   uint16_t ix;
   
-  memset(&carry[0],0,11);              // clear carry bits
+  memset(&carry[0],0,((LCDWIDTH-1) / 8) + 1);              // clear carry bits
   // move from the bottom row( LCDHEIGHT/8 ) up to row 0
   for (row=0; row < LCDHEIGHT/8; row++) {
     for (col=0; col < LCDWIDTH; col++) {
@@ -371,7 +371,7 @@ void Adafruit_PCD8544::setContrast(uint8_t val) {
 void Adafruit_PCD8544::display(void) {
   uint8_t col, maxcol, p;
   
-  for(p = 0; p < 6; p++) {
+  for(p = 0; p < ((LCDHEIGHT-1) / 8) + 1; p++) {
 #ifdef enablePartialUpdate
     // check if this page is part of update
     if ( yUpdateMin >= ((p+1)*8) ) {
