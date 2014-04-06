@@ -7,11 +7,11 @@ This is a library for our Monochrome Nokia 5110 LCD Displays
 These displays use SPI to communicate, 4 or 5 pins are required to  
 interface
 
-Adafruit invests time and resources providing this open source code, 
-please support Adafruit and open-source hardware by purchasing 
+Adafruit invests time and resources providing this open source code,
+please support Adafruit and open-source hardware by purchasing
 products from Adafruit!
 
-Written by Limor Fried/Ladyada  for Adafruit Industries.  
+Written by Limor Fried/Ladyada for Adafruit Industries.
 BSD license, check license.txt for more information
 All text above, and the splash screen below must be included in any redistribution
 *********************************************************************/
@@ -62,7 +62,7 @@ uint8_t pcd8544_buffer[LCDWIDTH * LCDHEIGHT / 8] = {
 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x0F, 0x1F, 0x3F, 0x7F, 0x7F,
 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0x7F, 0x1F, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
 
 
@@ -111,10 +111,10 @@ void Adafruit_PCD8544::drawPixel(int16_t x, int16_t y, uint16_t color) {
     return;
 
   // x is which column
-  if (color) 
-    pcd8544_buffer[x+ (y/8)*LCDWIDTH] |= _BV(y%8);  
+  if (color)
+    pcd8544_buffer[x+ (y/8)*LCDWIDTH] |= _BV(y%8);
   else
-    pcd8544_buffer[x+ (y/8)*LCDWIDTH] &= ~_BV(y%8); 
+    pcd8544_buffer[x+ (y/8)*LCDWIDTH] &= ~_BV(y%8);
 
   updateBoundingBox(x,y,x,y);
 }
@@ -124,7 +124,7 @@ uint8_t Adafruit_PCD8544::getPixel(int8_t x, int8_t y) {
   if ((x < 0) || (x >= LCDWIDTH) || (y < 0) || (y >= LCDHEIGHT))
     return 0;
 
-  return (pcd8544_buffer[x + (y/8) * LCDWIDTH] >> (y%8)) & 0x1;  
+  return (pcd8544_buffer[x + (y/8) * LCDWIDTH] >> (y%8)) & 0x1;
 }
 
 // capture a raw bitmap buffer into memory(SRAM)
@@ -137,7 +137,7 @@ void Adafruit_PCD8544::capture(uint8_t *bitmap) {
 void Adafruit_PCD8544::replace_P(uint8_t *bitmap) {
   memcpy_P(pcd8544_buffer,
            (uint8_t*) pgm_read_byte(bitmap - 256),
-           LCDWIDTH * LCDHEIGHT/8); 
+           LCDWIDTH * LCDHEIGHT/8);
   updateBoundingBox(0, 0, LCDWIDTH-1, LCDHEIGHT-1);
 }
 
@@ -147,19 +147,19 @@ void Adafruit_PCD8544::replace_S(uint8_t *bitmap) {
   updateBoundingBox(0, 0, LCDWIDTH-1, LCDHEIGHT-1);
 }
 
-// scroll screen 1 pixel to the left. 
+// scroll screen 1 pixel to the left.
 void Adafruit_PCD8544::scrollLeft(boolean WRAP) {
   uint8_t row, /*col, */ tmp;
   /*uint16_t ix;*/
   for (row=0; row < LCDHEIGHT/8; row++) {
-    tmp = pcd8544_buffer[row * LCDWIDTH];        // remember 1st byte
+    tmp = pcd8544_buffer[row * LCDWIDTH]; // remember 1st byte
     memcpy(pcd8544_buffer + (row * LCDWIDTH),
            pcd8544_buffer + (row * LCDWIDTH) + 1, // 1 line fast but ugly
-           LCDWIDTH - 1);
-//     for (col=0;col<LCDWIDTH-1;col++) { 
-//       ix=row*LCDWIDTH+col;                    // 3 lines readable but slower
-//       pcd8544_buffer[ix] = pcd8544_buffer[ix + 1]; 
-//     }
+           LCDWIDTH-1);
+// for (col=0;col<LCDWIDTH-1;col++) {
+// ix=row*LCDWIDTH+col; // 3 lines readable but slower
+// pcd8544_buffer[ix] = pcd8544_buffer[ix + 1];
+// }
     // place wrapped byte if required
     pcd8544_buffer[row * LCDWIDTH + LCDWIDTH-1] = WRAP ? tmp : 0x00;
   }
@@ -171,7 +171,7 @@ void Adafruit_PCD8544::scrollRight(boolean WRAP) {
   uint8_t row, col, tmp;
   uint16_t ix;
   for (row=0; row < LCDHEIGHT/8 ; row++) {
-    tmp = pcd8544_buffer[row * LCDWIDTH + LCDWIDTH-1];  // remember 1st byte
+    tmp = pcd8544_buffer[row * LCDWIDTH + LCDWIDTH-1]; // remember 1st byte
     for (col = (LCDWIDTH-1); col > 0; col--) {
       ix=row * LCDWIDTH + col;
       pcd8544_buffer[ix] = pcd8544_buffer[ix-1];
@@ -183,16 +183,16 @@ void Adafruit_PCD8544::scrollRight(boolean WRAP) {
 
 // scroll screen 1 pixel up
 void Adafruit_PCD8544::scrollUp(boolean WRAP) {
-  uint8_t row, col, carrybit, carryflag=0, carry[11];
+  uint8_t row, col, carrybit, carryflag=0, carry[((LCDWIDTH-1) / 8) + 1];
   uint16_t ix;
   
-  memset(&carry[0],0,11); // clear carry bits
+  memset(&carry[0],0,((LCDWIDTH-1) / 8) + 1); // clear carry bits
   // move from the bottom row backwards to 0
   for (row= LCDHEIGHT/8 ; row > 0; row--) {
     for (col=0; col < LCDWIDTH; col++) {
       ix=(uint16_t)(((row-1) * LCDWIDTH) + col);
       carrybit = 0x01 << col%8;
-      if (row < LCDHEIGHT/8 ) {        // 2nd-highest row and below
+      if (row < LCDHEIGHT/8 ) { // 2nd-highest row and below
         // retrieve and place carry bit from last(higher) row
         if (carry[col/8] & carrybit) { // carry is set
             carryflag = 1;
@@ -200,65 +200,65 @@ void Adafruit_PCD8544::scrollUp(boolean WRAP) {
         } else {
             carryflag = 0;
         }
-      } 
+      }
       // remember soon-to-be shifted bit
       if (pcd8544_buffer[ix] & 0x01) { // carry LSb is set
-        carry[col/8] |= carrybit;      //  remember LSb(top bit)
+        carry[col/8] |= carrybit;      // remember LSb(top bit)
       }
       pcd8544_buffer[ix] >>= 1;        // shift right(MSb->LSb(up)) 1 bit
-      if(carryflag) {           
+      if(carryflag) {
         pcd8544_buffer[ix] |= 0x80;    // place carry in MSb
       }
     } // for col
-  } // for row 
+  } // for row
   // wrap around shifted-up bits
   if (WRAP) {
     for (col=0; col < LCDWIDTH; col++) {
       //ix = col+420;
       ix = col + ((LCDWIDTH * LCDHEIGHT/8) - LCDWIDTH);
       carrybit = 0x1 << col%8;
-      if (carry[col/8] & carrybit) {   // carry, set
+      if (carry[col/8] & carrybit) { // carry, set
         pcd8544_buffer[ix] |= 0x80;
       }
-    }  
+    }
   } //if WRAP
   updateBoundingBox(0, 0, LCDWIDTH-1, LCDHEIGHT-1);
 }
 
 // scroll screen 1 pixel down
 void Adafruit_PCD8544::scrollDown(boolean WRAP) {
-  uint8_t row, col, carrybit, carryflag, carry[11];
+  uint8_t row, col, carrybit, carryflag, carry[((LCDWIDTH-1) / 8) + 1];
   uint16_t ix;
   
-  memset(&carry[0],0,11);              // clear carry bits
+  memset(&carry[0],0,((LCDWIDTH-1) / 8) + 1); // clear carry bits
   // move from the bottom row( LCDHEIGHT/8 ) up to row 0
   for (row=0; row < LCDHEIGHT/8; row++) {
     for (col=0; col < LCDWIDTH; col++) {
-      ix=(uint16_t)((row*LCDWIDTH) + col);
-      carrybit = 1 << (col%8); 
-      if(row <  LCDHEIGHT/8  && (carry[col/8] & carrybit)) { 
-        // retrieve  carry bit from last(lower) row
+      ix=(uint16_t)((row * LCDWIDTH) + col);
+      carrybit = 1 << (col%8);
+      if(row < LCDHEIGHT/8 && (carry[col/8] & carrybit)) {
+        // retrieve carry bit from last(lower) row
         carryflag = 1;
-        carry[col/8] &= ~carrybit;     // and reset it(ready for another)
+        carry[col/8] &= ~carrybit; // and reset it(ready for another)
       } else {
         carryflag = 0;
-      }                       
+      }
       // remember soon-to-be shifted carrybit
       if ((pcd8544_buffer[ix] & 0x80)) {
         carry[col/8] |= carrybit;
       }
-      pcd8544_buffer[ix] <<= 1;        // shift left(MSb<-LSb(down)) 1 bit
+      pcd8544_buffer[ix] <<= 1; // shift left(MSb<-LSb(down)) 1 bit
       // place carry
       if(carryflag) {
-        pcd8544_buffer[ix] |= 0x01;    // place carry in MSb
+        pcd8544_buffer[ix] |= 0x01; // place carry in MSb
       }
     } // for col
-  } // for row 
+  } // for row
   if (WRAP) {
       for (col=0 ;col < LCDWIDTH; col++) {
       ix = col;
       carrybit = 0x01 << col%8;
-      if (carry[col/8] & carrybit) {   // carry: set pixel
+      if (carry[col/8] & carrybit) { // carry: set pixel
         pcd8544_buffer[ix] |= 0x01;
       }
     }
@@ -283,13 +283,13 @@ void Adafruit_PCD8544::begin(uint8_t contrast) {
     digitalWrite(_rst, HIGH);
   }
 
-  clkport     = portOutputRegister(digitalPinToPort(_sclk));
-  clkpinmask  = digitalPinToBitMask(_sclk);
-  mosiport    = portOutputRegister(digitalPinToPort(_din));
+  clkport = portOutputRegister(digitalPinToPort(_sclk));
+  clkpinmask = digitalPinToBitMask(_sclk);
+  mosiport = portOutputRegister(digitalPinToPort(_din));
   mosipinmask = digitalPinToBitMask(_din);
-  csport    = portOutputRegister(digitalPinToPort(_cs));
+  csport = portOutputRegister(digitalPinToPort(_cs));
   cspinmask = digitalPinToBitMask(_cs);
-  dcport    = portOutputRegister(digitalPinToPort(_dc));
+  dcport = portOutputRegister(digitalPinToPort(_dc));
   dcpinmask = digitalPinToBitMask(_dc);
 
   // get into the EXTENDED mode!
@@ -328,9 +328,9 @@ inline void Adafruit_PCD8544::fastSPIwrite(uint8_t d) {
   
   for(uint8_t bit = 0x80; bit; bit >>= 1) {
     *clkport &= ~clkpinmask;
-    if(d & bit) *mosiport |=  mosipinmask;
-    else        *mosiport &= ~mosipinmask;
-    *clkport |=  clkpinmask;
+    if(d & bit) *mosiport |= mosipinmask;
+    else *mosiport &= ~mosipinmask;
+    *clkport |= clkpinmask;
   }
 }
 
@@ -361,7 +361,7 @@ void Adafruit_PCD8544::setContrast(uint8_t val) {
     val = 0x7f;
   }
   command(PCD8544_FUNCTIONSET | PCD8544_EXTENDEDINSTRUCTION );
-  command( PCD8544_SETVOP | val); 
+  command( PCD8544_SETVOP | val);
   command(PCD8544_FUNCTIONSET);
   
  }
@@ -371,11 +371,11 @@ void Adafruit_PCD8544::setContrast(uint8_t val) {
 void Adafruit_PCD8544::display(void) {
   uint8_t col, maxcol, p;
   
-  for(p = 0; p < 6; p++) {
+  for(p = 0; p < LCDHEIGHT/8; p++) {
 #ifdef enablePartialUpdate
     // check if this page is part of update
     if ( yUpdateMin >= ((p+1)*8) ) {
-      continue;   // nope, skip it!
+      continue; // nope, skip it!
     }
     if (yUpdateMax < p*8) {
       break;
@@ -409,7 +409,7 @@ void Adafruit_PCD8544::display(void) {
 
   }
 
-  command(PCD8544_SETYADDR );  // no idea why this is necessary but it is to finish the last byte?
+  command(PCD8544_SETYADDR ); // no idea why this is necessary but it is to finish the last byte?
 #ifdef enablePartialUpdate
   xUpdateMin = LCDWIDTH - 1;
   xUpdateMax = 0;
@@ -429,9 +429,7 @@ void Adafruit_PCD8544::clearDisplay(void) {
 /*
 // this doesnt touch the buffer, just clears the display RAM - might be handy
 void Adafruit_PCD8544::clearDisplay(void) {
-  
   uint8_t p, c;
-  
   for(p = 0; p < 8; p++) {
 
     st7565_command(CMD_SET_PAGE | p);
@@ -441,9 +439,8 @@ void Adafruit_PCD8544::clearDisplay(void) {
       st7565_command(CMD_SET_COLUMN_LOWER | (c & 0xf));
       st7565_command(CMD_SET_COLUMN_UPPER | ((c >> 4) & 0xf));
       st7565_data(0x0);
-    }     
+    }    
     }
 
 }
-
 */
